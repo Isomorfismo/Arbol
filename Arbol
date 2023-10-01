@@ -1,4 +1,4 @@
-#Arbol binario
+//Arbol binario
 
 #include <stdio.h>
 #include <stdlib.h>
