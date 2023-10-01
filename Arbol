@@ -1,0 +1,137 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+typedef struct persona{
+    char nombre[20];
+    int id;
+}persona;
+
+typedef struct nodo{
+    persona info;
+    struct nodo *izq;
+    struct nodo *der;
+}nodo;
+
+typedef nodo *arbol;
+
+arbol crearNodo(persona p){
+    nodo *nuevo = (nodo*)malloc(sizeof(nodo));
+    nuevo->info = p;
+    nuevo->izq = NULL;
+    nuevo->der = NULL;
+    return nuevo;
+}
+
+void crearArbol(arbol *raiz, arbol *izq, arbol *der, persona p){
+    *raiz = crearNodo(p);
+    (*raiz)->izq = *izq;
+    (*raiz)->der = *der;
+}
+
+void borrarArbol(arbol *raiz){
+    if(*raiz != NULL){
+        borrarArbol(&(*raiz)->izq);
+        borrarArbol(&(*raiz)->der);
+        free(*raiz);
+    }
+}
+
+void borrarElemento(arbol *raiz, persona p){
+    if(*raiz ==NULL){
+        printf("No se encontro el elemento\n");
+    }else if(p.id < (*raiz)->info.id){
+        borrarElemento(&(*raiz)->izq, p);
+    }else if(p.id > (*raiz)->info.id){
+        borrarElemento(&(*raiz)->der, p);
+    }else{
+        nodo *aux = *raiz;
+        if(aux->izq == NULL){
+            *raiz = aux->der;
+        }else if(aux->der == NULL){
+            *raiz = aux->izq;
+        }else{
+            aux = aux->izq;
+            while(aux->der != NULL){
+                aux = aux->der;
+            }
+            aux->der = (*raiz)->der;
+            *raiz = (*raiz)->izq;
+        }
+        free(aux);
+    }
+}
+
+void insertar(arbol *raiz, persona p){
+    if(*raiz == NULL){
+        *raiz = crearNodo(p);
+    }else{
+        if(p.id < (*raiz)->info.id){
+            insertar(&(*raiz)->izq, p);
+        }else{
+            insertar(&(*raiz)->der, p);
+        }
+    }
+}
+
+void buscar(nodo *raiz, int id){
+    if(raiz != NULL){
+        if(id == raiz->info.id){
+            printf("%s\n", raiz->info.nombre);
+        }else{
+            if(id < raiz->info.id){
+                buscar(raiz->izq, id);
+            }else{
+                buscar(raiz->der, id);
+            }
+        }
+    }else{
+        printf("No se encontro el id\n");
+    }
+}
+
+void mostrar(nodo *raiz){
+    if(raiz != NULL){
+        mostrar(raiz->izq);
+        printf("%d - %s\n", raiz->info.id, raiz->info.nombre);
+        mostrar(raiz->der);
+    }
+}
+
+int main(){
+    nodo *raiz = NULL;
+    int opcion, id;
+
+    insertar(&raiz, (persona){"Claudia", 20});
+    insertar(&raiz, (persona){"Fernando", 63});
+    insertar(&raiz, (persona){"Jorge", 18});
+    insertar(&raiz, (persona){"Maria", 2});
+    insertar(&raiz, (persona){"Miguel", 22});
+    insertar(&raiz, (persona){"Pedro", 66});
+    insertar(&raiz, (persona){"Luis", 18});
+    insertar(&raiz, (persona){"Laura", 70});
+
+    do{
+        printf("1. Mostrar\n");
+        printf("2. Buscar\n");
+        printf("3. Salir\n");
+        printf("Opcion: ");
+        scanf("%d", &opcion);
+        switch(opcion){
+            case 1:
+                mostrar(raiz);
+                break;
+            case 2:
+                printf("Id: ");
+                scanf("%d", &id);
+                buscar(raiz, id);
+                break;
+            case 3:
+                borrarArbol(&raiz);
+                break;
+            default:
+                printf("Opcion invalida\n");
+        }
+    }while(opcion != 3);
+    return 0;
+}
